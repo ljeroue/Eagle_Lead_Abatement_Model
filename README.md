@@ -7,7 +7,7 @@ increase per gut pile ingested and is obtained with the joint probability - quan
 lead concentration per gut pile consumed.
 
 <p align="center">
-	<b> Expected Eagle Mortality = Population size x Mortality Rate
+	<b> Expected Eagle Mortality = Population size x Mortality Rate</b>
 </p>
 
 The model incorporates two mitigation scenarios at several levels and uses proportional decreases in mitigation at levels 10% thru 100% at 10% increments.
