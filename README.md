@@ -1,19 +1,14 @@
 # Eagle_Lead_Abatement_Model
-Determines mitigation effort needed for reducing eagle mortality from lead poisoning
-
-## Reference
-Cochrane J.F., E. Lonsdorf, T. D. Allison and C.A. Sanders-Reed. 2015. Modeling with 
-uncertain science: estimation mitigation credits from abating lead poisoning in Golden 
-Eagles. Ecological Applications, 25(6): p 1518 – 1533.
-
-Link to the publication online [here](https://www.ncbi.nlm.nih.gov/pubmed/26552261)
+Determines mitigation effort needed for reducing eagle mortality from lead poisoning based on Cochrane et al. (2015).
 
 ## Calculation
 Expected mortality is influenced by availability of gut piles per eagle and amount of blood lead concentration 
 increase per gut pile ingested and is obtained with the joint probability - quantity of gut piles scavenged and blood 
 lead concentration per gut pile consumed.
 
+<p align="center">
 __Expected Eagle Mortality = Population size x Mortality Rate__
+</p>
 
 The model incorporates two mitigation scenarios at several levels and uses proportional decreases in mitigation at levels 10% thru 100% at 10% increments.
 
@@ -65,3 +60,10 @@ Mitigation Scenarios
   - Max mortality rate set to 1 (mortality cannot be larger than 1)
   - Allowed half-saturation constant to vary by random selection from a ~uniform(150,700) to account for expert uncertainty.
     - Half-saturation constant is the concentration of lead in the blood that leads to a mortality rate of 50%
+
+## Reference
+Cochrane J.F., E. Lonsdorf, T. D. Allison and C.A. Sanders-Reed. 2015. Modeling with 
+uncertain science: estimation mitigation credits from abating lead poisoning in Golden 
+Eagles. Ecological Applications, 25(6): p 1518 – 1533.
+
+Link to the publication online [here](https://www.ncbi.nlm.nih.gov/pubmed/26552261)
