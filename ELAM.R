@@ -32,100 +32,79 @@ set.seed(123)
 # Load current location information for hunting units
 #----------------------------------------------------------------------
 
-# 
-harvestUnits <- read.csv("C:/LACEY/CODE/gitHub/Eagle_LeadAbatement/Eagle_Lead_Abatement_Model/huntunits.csv", header = T)
-numColumns <- c("Harvest", "Area_km2")
-harvestUnits[, numColumns] <- sapply(harvestUnits[, numColumns], as.numeric)
+# This data came from the Iowa DNR harvest log for 2018
+gitURL <- RCurl::getURL("https://raw.githubusercontent.com/ljeroue/Eagle_Lead_Abatement_Model/master/huntunits.csv")
+harvestUnits <- readr::read_csv(gitURL)
 
-eagleDensity_km2 <- 0.1
-gutPileHarvest <- 0.9
+
+# Convert tibble to traditional dataframe
+harvestUnits <- as.data.frame(harvestUnits)
+
+# Ensure that location area and harvest are numerical
+# and thank your tibble because they are
+summary(harvestUnits)
 
 
 #----------------------------------------------------------------------
-# output
+# Run the simulation
 #----------------------------------------------------------------------
 
-#output for gut pile removal
-mort_rate
-summary(mort_rate)
+results <- simulateLeadMitigation(df = harvestUnits,
+                                  col_locationName = "HuntUnit",
+                                  col_locationArea_km2 = "Area_km2",
+                                  col_locationHarvest = "Harvest",
+                                  eagleDensity_km2 = 0.1,
+                                  gutPileHarvest = 0.9,
+                                  alpha_levels = seq(0, 1, 0.1),
+                                  num_iters = 50
+                                  )
 
-# output for lead bullet reduction  
-mort_ratea2
+
+# Output is a list containing two 4d matrix of mortality rate, one for each 
+# mitigation type
+inputData <- results$inputData
+gutRemoval <- results$gutRemoval
+shotConversion <- results$shotConversion
+
+
+# matrix dimensions are locations, simulations, and 
+# mitigation levels (% gutpiles removed or % nonlead ammunition)
+dim(gutRemoval) 
+dim(shotConversion)
+
 
 #----------------------------------------------------------------------
-# Calculate total deaths for state
+# Calculate location specific mortality rates; incorporate eagle density
 #----------------------------------------------------------------------
-
-toteagle = harvestUnits$huntUnit_100km2 * (harvestUnits$eagles_km2 * 100)
-deadeaglea1 = array(0, dim=c(num_iters,num_loc,length(alpha1_levels)))
-deadeaglea2 = array(0, dim=c(num_iters,num_loc,length(alpha1_levels)))
-deadeaglesuma1 = array(0, dim=c(num_iters,length(alpha1_levels)))
-deadeaglesuma2 = array(0, dim=c(num_iters,length(alpha1_levels)))
-
-for(i in 1:num_iters){
-  for(a in 1:length(alpha1_levels)){
-    deadeaglea1[i,1:num_loc,a] = t(drop(mort_rate[i,1:num_loc,a,1])) * toteagle
-    deadeaglea2[i,1:num_loc,a] = t(drop(mort_ratea2[i,1:num_loc,a,1])) * toteagle
-    deadeaglesuma1[i,a] = sum(deadeaglea1[i,1:num_loc,a])
-    deadeaglesuma2[i,a] = sum(deadeaglea2[i,1:num_loc,a])
-  } # end 
-} # end
+alpha_levels = seq(0, 1, 0.1)
+num_iters <- 50
 
 
-# for entire state
-state_mort_ratea1 = deadeaglesuma1/sum(toteagle)
-state_mort_ratea2 = deadeaglesuma2/sum(toteagle)
-round(apply(state_mort_ratea1, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1)),3)
-round(apply(state_mort_ratea2, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1)),3)
-apply(state_mort_ratea1, 2, mean)
-apply(state_mort_ratea2, 2, mean)
+mortality <- mortalityRate(
+  inputData,
+  gutRemoval,
+  shotConversion,
+  locations = FALSE,
+  num_iters = num_iters,
+  alpha_levels = alpha_levels)
 
 
-## FOR A SELECT REGION
-# these FID correspond to hunting units 22 34 66 67 88 89
-#selectFID = c(57, 70, 129, 88, 84, 82)
-selectFID = c(0)
-selectFID = c(1)
+# Visualize MORTALITY RATE 
 
-deadeaglea1Casper = array(0, dim=c(num_iters,num_loc,length(alpha1_levels)))
-deadeaglea2Casper = array(0, dim=c(num_iters,num_loc,length(alpha1_levels)))
-deadeaglesuma1Casper = array(0, dim=c(num_iters,length(alpha1_levels)))
-deadeaglesuma2Casper = array(0, dim=c(num_iters,length(alpha1_levels)))
+create_mortRate_table <- function(df, alpha_levels, decimalPlaces = 3){
+  table <- round(apply(df, 2, quantile, probs = alpha_levels), 3)
+  colnames(table) <- c(paste(as.character(alpha_levels*10), "%", sep = ""))
+  table
+}
 
-toteagleCasper = NULL
-for(m in 1:length(selectFID)){   #RUNS
-  loc_index = which(locations[,1] == selectFID[m])
-  eagle_loc =  locations[loc_index,2] * (locations[loc_index,4] * 100) #total eagle at unit m
-  toteagleCasper = rbind(toteagleCasper, eagle_loc)   
-  for(i in 1:num_iters){
-    for(a in 1:length(alpha1_levels)){
-      deadeaglea1Casper[i,m,a] = drop(t(mort_rate[i,loc_index,a,1])) * eagle_loc
-      deadeaglea2Casper[i,m,a] = drop(t(mort_ratea2[i,loc_index,a,1])) * eagle_loc
-    } # end
-  }# end
-}# end
+(gutpile_mortality <- create_mortRate_table(mortality$mortRate_gutPile, alpha_levels))
+(ammo_mortality <- create_mortRate_table(mortality$mortRate_shotConversion, alpha_levels))
 
-for(i in 1:num_iters){      #RUNS
-  for(a in 1:length(alpha1_levels)){
-    deadeaglesuma1Casper[i,a] = sum(deadeaglea1Casper[i,,a])
-    deadeaglesuma2Casper[i,a] = sum(deadeaglea2Casper[i,,a])
-  }# end
-}# end 
 
-Casper_mort_ratea1 = deadeaglesuma1Casper/sum(toteagleCasper)
-Casper_mort_ratea2 = deadeaglesuma2Casper/sum(toteagleCasper)
-round(apply(Casper_mort_ratea1, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1.00)),3)
-round(apply(Casper_mort_ratea2, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1.00)),3)
-apply(Casper_mort_ratea1, 2, mean)
-apply(Casper_mort_ratea2, 2, mean)
+#write.csv(gutpile_mortality, "MortalityRate_GutPileRemoved.csv")
+#write.csv(ammo_mortality, "MortalityRate_NonLeadAmmo.csv")
 
-# MORTALITY RATE - Table D1
-m1 <- round(apply(Casper_mort_ratea1, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1.00)),3)
-colnames(m1) <- c(paste(as.character(seq(0,100,10)), "%", sep = ""))
-m2 <- round(apply(Casper_mort_ratea2, 2, quantile, probs = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1.00)),3)
-colnames(m2) <- c(paste(as.character(seq(0,100,10)), "%", sep = ""))
-#write.csv(m1, "MortalityRate_GutPileRemoved_Midwest.csv")
-#write.csv(m2, "MortalityRate_AmmunitionNonLead_Midwest.csv")
+
 
 # How can we reduce eagle deaths by X per year? Produce Fig. 6 - NON-LEAD AMMO
 

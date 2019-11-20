@@ -5,36 +5,39 @@ simulateLeadMitigation <- structure(
     # name of column in df containing harvest location name
     col_locationName,
     # name of column in df containing harvest location area in square km
-    col_locationArea,
+    col_locationArea_km2,
     # name of column in df containing total deer harvest at each location
     col_locationHarvest,
     # eagle density estimated at harvest location
     eagleDensity_km2,
     # proportion of total harvest left on the landscape to become available gut piles
-    gutPileHarvest = 0.9){
+    gutPileHarvest = 0.9,
+    alpha_levels = seq(0, 1, 0.1),
+    num_iters = 5000){
     
     
     # Add useful variables
-    harvestUnits$total_gutPiles <- harvestUnits$Harvest * gutPileHarvest
-    harvestUnits$huntUnit_100km2 <- harvestUnits$Area_km2 / 100
-    harvestUnits$eagles_km2 <- eagleDensity_km2
+    df$total_gutPiles <- df[, col_locationHarvest] * gutPileHarvest
+    df$huntUnit_100km2 <- df[, col_locationArea_km2] / 100
+    df$eagles_km2 <- eagleDensity_km2
+    df$loc_index <- seq(1, nrow(df), 1)
+    df$total_eagles <- df$huntUnit_100km2 * (df$eagles_km2 * 100)
     
-    num_loc <- length(harvestUnits$HuntUnit)
+    num_loc <- length(df[, col_locationName])
     
     #----------------------------------------------------------------------
     # Set parameters for all iterations
     #----------------------------------------------------------------------
     
     # Number of iterations run
-    num_iters = 5000
+    num_iters =  num_iters
     
     # Range of mitigation effects  
     # gutpile mitigation alpha1_levels = % gutpiles removed
-    alpha1_levels = seq(0, 1, 0.1)
-    1:length(alpha1_levels)
+    alpha1_levels = alpha_levels
     
     # ammunition mitigation alpha2_levels % nonlead ammunition
-    alpha2_levels = seq(0, 1, 0.1)
+    alpha2_levels = alpha_levels
     
     # Maximum lead (pb) concentration levels (pb_levels)
     pb_levels = seq(0, 1000, 10)
@@ -194,7 +197,7 @@ simulateLeadMitigation <- structure(
       #----------------------------------------------------------------------
       
       for(g in 1:num_loc){
-        ee = harvestUnits$eagles_km2[g] * 100 # = eagles/100 km block for specific location
+        ee = df$eagles_km2[g] * 100 # = eagles/100 km block for specific location
         
         ## Scenarios of mitigation
         
@@ -204,7 +207,7 @@ simulateLeadMitigation <- structure(
         for(a in 1:length(alpha1_levels)){
           
           # gutpiles per 100 km2 blocks per eagle
-          gp = (harvestUnits$total_gutPiles[g] / (harvestUnits$huntUnit_100km2[g] * ee)) * (1-alpha1_levels[a]) 
+          gp = (df$total_gutPiles[g] / (df$huntUnit_100km2[g] * ee)) * (1-alpha1_levels[a]) 
           
           # Equation 1 (when a = 0) Equation 11 (when a > 0)
           m_gp_low = max_gp_low * scalar_gp * gp^power_gp_low / 
@@ -250,7 +253,7 @@ simulateLeadMitigation <- structure(
         ##MITIGATION METHOD 2 - Lead Bullet Reduction
         
         # gutpiles per 100 km2 blocks per eagle WITHOUT MITIGATION/Removal
-        gp = harvestUnits$total_gutPiles[g] /(harvestUnits$huntUnit_100km2[g] *ee)
+        gp = df$total_gutPiles[g] /(df$huntUnit_100km2[g] *ee)
         
         # Equation 1
         m_gp_low = max_gp_low * scalar_gp * gp ^ power_gp_low / 
@@ -296,5 +299,17 @@ simulateLeadMitigation <- structure(
         } #end  % for p
       } # end  % for g = 1:1:num_loc
     } # end  % for i = 1:1;num_iters
+    
+    
+    #----------------------------------------------------------------------
+    # OUTPUT
+    #----------------------------------------------------------------------
+    
+    results = list(inputData = df,
+                   gutRemoval = mort_rate,
+                   shotConversion = mort_ratea2)
+    return(results)
+    
+    
   }  # end fx
 )  # end structure
