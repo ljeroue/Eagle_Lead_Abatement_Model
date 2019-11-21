@@ -23,7 +23,7 @@ A .csv file containing
 - total deer harvest for each respective hunt unit
 - eagle density for each hunt unit
 Deer harvest reports by county/hunt unit can be found on the Department of Natural Resources (DNR) website for each specific state.
-For example, Iowa DNR Deer & Turkey Harvest Report can be found [here](https://gooutdoorsiowa.com/RealTimeHarvestReport.aspx)
+For example, Iowa DNR Deer & Turkey Harvest Report can be found [here](https://gooutdoorsiowa.com/RealTimeHarvestReport.aspx).
 Eagle density is not as easily available...
 
 ## Reference
@@ -32,3 +32,6 @@ uncertain science: estimation mitigation credits from abating lead poisoning in 
 Eagles. Ecological Applications, 25(6): p 1518 – 1533.
 
 Link to the publication online [here](https://pdfs.semanticscholar.org/48c6/c65f89f6d2e0cba61f17b0fa658ab0b5f7ac.pdf)
+
+
+![Model output:](EagleDeathsAvoided_gutpile.jpg)
