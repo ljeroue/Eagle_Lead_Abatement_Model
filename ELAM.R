@@ -144,6 +144,9 @@ avoidedEagleMort_ammo <- avoidedEagleMort_table(ammo_mortality_total)
 #----------------------------------------------------------------------
 
 
+# jpeg('C:/LACEY/CODE/gitHub/Eagle_LeadAbatement/Eagle_Lead_Abatement_Model/EagleDeathsAvoided_gutpile.jpg',
+#      height = 4, width = 5, units = 'in', res = 300)
+# par(mar = c(9.5, 4, 10, 0))
 plot(`50%` ~ mitRateNum, data = reducedEagleDeaths, type="n", 
      main="Iowa
 Harvest Year 2018
@@ -154,5 +157,5 @@ lines(reducedEagleDeaths$`50%` ~ reducedEagleDeaths$mitRateNum)
 lines(reducedEagleDeaths$`70%` ~ reducedEagleDeaths$mitRateNum, lty=2)
 # points(`50%` ~ mitRateNum, data = reducedEagleDeaths, type="p")
 # legend("bottomright", c("80th percentile", "median", "20th percentile"), lty = c(2,1,2))
-
+# dev.off()
 
