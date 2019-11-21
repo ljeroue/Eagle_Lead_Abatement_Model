@@ -1,25 +1,16 @@
 # Eagle_Lead_Abatement_Model
 Determines mitigation effort needed for reducing eagle mortality from lead poisoning based on Cochrane et al. (2015).
 
-## Calculation
-Expected mortality is influenced by availability of gut piles per eagle and amount of blood lead concentration 
-increase per gut pile ingested. Mortality is obtained with the joint probability - quantity of gut piles scavenged and blood 
-lead concentration per gut pile consumed.
-
-<p align="center">
-	<b> Expected Eagle Mortality = Population size x Mortality Rate </b>
-</p>
-
-The model incorporates two mitigation scenarios at several levels and uses proportional decreases in mitigation at levels 10% thru 100% at 10% increments.
+The model incorporates two mitigation scenarios at default intensities 0% - 100% at 10% increments.
 
 Mitigation Scenarios:
 1)	Reduce the number of gut piles containing lead
-2)	Reduce lead in the gut piles (ie. convert hunters to non-lead shot)
+2)	Reduce lead in the gut piles by converting hunters to non-lead shot
 
 ## Model Input
 A .csv file containing 
 - hunt unit name
-- hunt unit area
+- hunt unit area in km2
 - total deer harvest for each respective hunt unit
 - eagle density for each hunt unit
 Deer harvest reports by county/hunt unit can be found on the Department of Natural Resources (DNR) website for each specific state.
