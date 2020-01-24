@@ -13,6 +13,7 @@ A .csv file containing
 - hunt unit area in km2
 - total deer harvest for each respective hunt unit
 - eagle density for each hunt unit
+
 Deer harvest reports by county/hunt unit can be found on the Department of Natural Resources (DNR) website for each specific state.
 For example, Iowa DNR Deer & Turkey Harvest Report can be found [here](https://gooutdoorsiowa.com/RealTimeHarvestReport.aspx).
 Eagle density is not as easily available...
